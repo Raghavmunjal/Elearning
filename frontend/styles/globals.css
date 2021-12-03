@@ -326,9 +326,10 @@ p {
 }
 
 .programs p {
-  max-width: 27rem;
+  max-width: 27.3rem;
   margin-left: auto;
   margin-right: auto;
+  line-height: 1.7;
 }
 
 .education p {
