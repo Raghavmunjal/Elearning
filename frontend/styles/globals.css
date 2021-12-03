@@ -102,6 +102,10 @@ p {
   }
 }
 
+.pointer {
+  cursor: pointer;
+}
+
 #header {
   background: #fff;
   transition: all 0.5s;
