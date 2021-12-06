@@ -2,6 +2,8 @@ import express from "express";
 import morgan from "morgan";
 import dotenv from "dotenv";
 import cors from "cors";
+import csrf from "csurf";
+import cookieParser from "cookie-parser";
 import connectDB from "./config/db";
 import { notFound, errorHandler } from "./middleware/errMiddleware";
 import userRoute from "./routes/userRoutes";
@@ -9,14 +11,26 @@ import userRoute from "./routes/userRoutes";
 const app = express();
 dotenv.config();
 
+const csrfProtection = csrf({ cookie: true });
+
 // middleware
 app.use(express.json({ limit: "5mb" }));
 app.use(cors());
+
+// parse cookies
+// we need this because "cookie" is true in csrfProtection
+app.use(cookieParser());
+
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
 app.use("/api/user", userRoute);
+
+app.use(csrfProtection);
+app.get("/api/csrf-token", (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
 
 // connecting to the database
 connectDB();

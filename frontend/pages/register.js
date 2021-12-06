@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useContext, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { SyncOutlined } from "@ant-design/icons";
 import Link from "next/link";
+import { Context } from "../context";
+import { useRouter } from "next/router";
 
 export default function register() {
   const [name, setName] = useState("");
@@ -10,18 +12,27 @@ export default function register() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const { state, dispatch } = useContext(Context);
+  const { user } = state;
+
+  const router = useRouter();
+
   const config = {
     headers: {
       "Content-Type": "application/json",
     },
   };
 
+  useEffect(() => {
+    if (user !== null) router.push("/");
+  }, [user]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const { data } = await axios.post(
-        "http://localhost:5000/api/user/register",
+        "/api/user/register",
         { name, email, password },
         config
       );
