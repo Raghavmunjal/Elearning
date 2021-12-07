@@ -134,7 +134,7 @@ const forgotPassword = () => {
           ) : success ? (
             "Reset Password"
           ) : (
-            "Verify Your Email"
+            "Send Otp"
           )}
         </button>
       </div>

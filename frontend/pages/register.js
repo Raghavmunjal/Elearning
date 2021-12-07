@@ -167,7 +167,7 @@ export default function register() {
             ) : success ? (
               "Register"
             ) : (
-              "Verify your email"
+              "Send Otp"
             )}
           </button>
         </div>
