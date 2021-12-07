@@ -64,7 +64,9 @@ const Header = () => {
               )}
               {user !== null && (
                 <li className="nav-item" onClick={logout}>
-                  <a className="nav-link">Logout</a>
+                  <Link className="nav-link" href="/">
+                    Logout
+                  </Link>
                 </li>
               )}
             </ul>

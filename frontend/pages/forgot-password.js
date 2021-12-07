@@ -122,7 +122,7 @@ const forgotPassword = () => {
       )}
       <div className="mb-3 col-md-4 offset-md-4 mt-2">
         <button
-          className="btn btn-submit "
+          className="btn btn-submit"
           type="submit"
           onClick={success ? resetPassword : checkEmail}
           disabled={!email || loading}

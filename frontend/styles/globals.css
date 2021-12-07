@@ -324,6 +324,12 @@ p {
   margin-left: auto;
   margin-right: auto;
 }
+.underline-2 {
+  width: 5rem;
+  height: 0.25rem;
+  margin-bottom: 1.25rem;
+  background: var(--clr-primary-1);
+}
 
 .programs p {
   max-width: 27.3rem;
