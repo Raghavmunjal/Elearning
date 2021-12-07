@@ -88,9 +88,16 @@ export default function login() {
             )}
           </button>
         </div>
-        <h6 className="text-muted mb-3 col-md-4 offset-md-4 mt-2">
-          Create an account? <Link href="/register">Register</Link>
-        </h6>
+        <div className="row">
+          <h6 className="text-muted  text-center mt-2">
+            Create an account? <Link href="/register">Register</Link>
+          </h6>
+        </div>
+        <div>
+          <h6 className="mb-3 text-center mt-2">
+            <Link href="/forgot-password">Forget Password ?</Link>
+          </h6>
+        </div>
       </form>
     </>
   );

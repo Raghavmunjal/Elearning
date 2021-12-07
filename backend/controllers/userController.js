@@ -1,6 +1,16 @@
 import userSchema from "../models/userModel";
 import { hashPassword, comparePassword } from "../utils/bcrypt";
 import generateToken from "../utils/generateToken";
+import { nanoid } from "nanoid";
+import AWS from "aws-sdk";
+
+const awsConfig = {
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION,
+  apiVersion: process.env.AWS_API_VERSION,
+};
+const SES = new AWS.SES(awsConfig);
 
 //@desc   Register User
 //@routes POST /api/user/register
@@ -29,7 +39,37 @@ export const registerUser = async (req, res) => {
 
     await user.save();
 
-    return res.json({ success: true });
+    const params = {
+      Source: process.env.EMAIL_FROM,
+      Destination: {
+        ToAddresses: [email],
+      },
+      ReplyToAddresses: [process.env.EMAIL_FROM],
+      Message: {
+        Body: {
+          Html: {
+            Charset: "UTF-8",
+            Data: `
+              <html>
+              <h1>Welcome ${name}</h1>
+              <h4>Thanks For Registering</h4>
+              <i>kakshaa.herokuapp.com</i>
+              </html>
+              `,
+          },
+        },
+        Subject: {
+          Charset: "UTF-8",
+          Data: "Registered Successfully",
+        },
+      },
+    };
+    const emailSent = SES.sendEmail(params).promise();
+    emailSent
+      .then((data) => {
+        res.json({ success: true });
+      })
+      .catch((err) => console.log(err));
   } catch (error) {
     console.log(error);
     return res.status(400).send("Error try again");
@@ -90,12 +130,58 @@ export const logoutUser = async (req, res) => {
 export const currentUser = async (req, res) => {
   try {
     const user = await userSchema
-      .findById(req.user._id)
+      .findById(req.user.id)
       .select("-password")
       .exec();
+
     return res.json({ success: true });
   } catch (error) {
     console.log(error);
     return res.status(400).send("Error try again");
   }
+};
+
+//@desc   send otp to verify email
+//@routes GET /api/user/send-otp
+//@access PUBLIC
+export const sendOtp = async (req, res) => {
+  const { email } = req.body;
+
+  const existUser = await userSchema.findOne({ email }).exec();
+
+  if (existUser) return res.status(400).send("Email is already in use");
+
+  const otp = nanoid(6).toUpperCase();
+  const params = {
+    Source: process.env.EMAIL_FROM,
+    Destination: {
+      ToAddresses: [email],
+    },
+    ReplyToAddresses: [process.env.EMAIL_FROM],
+    Message: {
+      Body: {
+        Html: {
+          Charset: "UTF-8",
+          Data: `
+          <html>
+          <h1>Verify Your Email</h1>
+          <p>Use this code</p>
+          <h2 style="color:red;">${otp}</h2>
+          <i>kakshaa.herokuapp.com</i>
+          </html>
+          `,
+        },
+      },
+      Subject: {
+        Charset: "UTF-8",
+        Data: "Otp for Email Verification",
+      },
+    },
+  };
+  const emailSent = SES.sendEmail(params).promise();
+  emailSent
+    .then((data) => {
+      res.json(otp);
+    })
+    .catch((err) => console.log(err));
 };

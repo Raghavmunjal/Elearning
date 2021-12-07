@@ -32,12 +32,12 @@ export default function index() {
         </div>
       </div>
 
-      <div className="container education mt-2">
+      <div className="container education">
         <div className="row">
-          <div className="col-md-5 offset-md-1">
-            <Image src={"/t3.svg"} width="1250px" height="1250px" />
+          <div className="col-md-6">
+            <Image src={"/t3.svg"} width="1300px" height="1300px" />
           </div>
-          <div className="edu col-md-5 offset-md-1 my-auto">
+          <div className="edu col-md-4 offset-md-1 my-auto">
             <div>
               <h3>We Are Excellent In</h3>
               <h3>

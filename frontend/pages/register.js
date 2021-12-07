@@ -9,6 +9,9 @@ import { useRouter } from "next/router";
 export default function register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [otpfromBackend, setOtpfromBackend] = useState("");
+  const [otp, setOtp] = useState("");
+  const [success, setSuccess] = useState(false);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -27,10 +30,22 @@ export default function register() {
     if (user !== null) router.push("/");
   }, [user]);
 
-  const handleSubmit = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
+      if (!name || !password || !otp) {
+        toast.error("Enter all fields");
+        setLoading(false);
+        return;
+      }
+
+      if (otp !== otpfromBackend) {
+        toast.error("Invalid OTP");
+        setLoading(false);
+        return;
+      }
+
       const { data } = await axios.post(
         "/api/user/register",
         { name, email, password },
@@ -38,32 +53,46 @@ export default function register() {
       );
       setLoading(false);
       if (data.success === true) {
-        toast.success("Registered Successfully");
+        toast.success("Registered Successfully Now you can login");
+        setEmail("");
+        setPassword("");
+        setOtp("");
+        setName("");
+        router.push("/login");
       } else {
         toast.error("Registeration Failed");
       }
-    } catch (err) {
+    } catch (error) {
       setLoading(false);
-      toast.error(err.response.data);
+      toast.error(error.response.data);
+    }
+  };
+
+  const checkEmail = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const { data } = await axios.post(
+        "/api/user/send-otp",
+        { email },
+        config
+      );
+      setLoading(false);
+      setOtpfromBackend(data);
+      setSuccess(true);
+      toast.success(`OTP sent on ${email}`);
+    } catch (error) {
+      setLoading(false);
+      toast.error(error.response.data);
     }
   };
 
   return (
     <>
-      <form className="container gap mt-5" onSubmit={handleSubmit}>
-        <div className="mb-3 col-md-4 offset-md-4">
-          <label htmlFor="name" className="form-label text-muted">
-            Name
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="name"
-            value={name}
-            autoFocus
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
+      <form
+        className="container gap mt-5"
+        onSubmit={success ? handleRegister : checkEmail}
+      >
         <div className="mb-3 col-md-4 offset-md-4">
           <label htmlFor="email" className="form-label text-muted">
             Email
@@ -72,35 +101,73 @@ export default function register() {
             type="email"
             className="form-control"
             id="email"
+            autoFocus
             value={email}
+            disabled={success}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
-        <div className="mb-3 col-md-4 offset-md-4">
-          <label htmlFor="password" className="form-label text-muted">
-            Password
-          </label>
-          <input
-            type="password"
-            className="form-control"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+
+        {success && (
+          <>
+            <div className="mb-3 col-md-4 offset-md-4">
+              <label htmlFor="otp" className="form-label text-muted">
+                Otp
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                id="otp"
+                value={otp}
+                autoFocus
+                onChange={(e) => setOtp(e.target.value)}
+              />
+            </div>
+
+            <div className="mb-3 col-md-4 offset-md-4">
+              <label htmlFor="name" className="form-label text-muted">
+                Name
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                id="name"
+                value={name}
+                required
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+
+            <div className="mb-3 col-md-4 offset-md-4">
+              <label htmlFor="password" className="form-label text-muted">
+                Password
+              </label>
+              <input
+                type="password"
+                className="form-control"
+                id="password"
+                value={password}
+                required
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          </>
+        )}
         <div className="mb-3 col-md-4 offset-md-4 mt-2">
           <button
             className="btn btn-submit"
             type="submit"
-            onClick={handleSubmit}
-            disabled={!name || !email || !password || loading}
+            onClick={success ? handleRegister : checkEmail}
+            disabled={!email || loading}
           >
             {loading ? (
               <span>
-                <SyncOutlined spin /> Submitting
+                <SyncOutlined spin /> Loading...
               </span>
-            ) : (
+            ) : success ? (
               "Register"
+            ) : (
+              "Verify your email"
             )}
           </button>
         </div>
