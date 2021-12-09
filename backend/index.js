@@ -8,6 +8,7 @@ import connectDB from "./config/db";
 import { notFound, errorHandler } from "./middleware/errMiddleware";
 import userRoute from "./routes/userRoutes";
 import authRoute from "./routes/authRoutes";
+import roleRoute from "./routes/roleRoutes";
 
 const app = express();
 dotenv.config();
@@ -28,6 +29,7 @@ if (process.env.NODE_ENV === "development") {
 
 app.use("/api/user", userRoute);
 app.use("/api/auth", authRoute);
+app.use("/api/role", roleRoute);
 
 app.use(csrfProtection);
 app.get("/api/csrf-token", (req, res) => {

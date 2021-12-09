@@ -126,7 +126,7 @@ export const logoutUser = async (req, res) => {
 
 //@desc   check valid token
 //@routes GET /api/user/isvalid
-//@access PUBLIC
+//@access PRIVATE
 export const currentUser = async (req, res) => {
   try {
     const user = await userSchema
@@ -135,6 +135,24 @@ export const currentUser = async (req, res) => {
       .exec();
 
     return res.json({ success: true });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send("Error try again");
+  }
+};
+
+//@desc   check if user is instructor or not
+//@routes GET /api/user/isInstructor
+//@access PRIVATE
+export const currentInstructor = async (req, res) => {
+  try {
+    const user = await userSchema
+      .findById(req.user.id)
+      .select("-password")
+      .exec();
+    if (!user.role.includes("Instructor"))
+      return res.status(403).send("Unauthorized");
+    else return res.json({ success: true });
   } catch (error) {
     console.log(error);
     return res.status(400).send("Error try again");

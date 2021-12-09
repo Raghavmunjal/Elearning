@@ -55,6 +55,13 @@ const Header = () => {
                   </Link>
                 </li>
               )}
+              {user !== null && user.role && user.role.includes("Instructor") && (
+                <li className="nav-item">
+                  <Link className="nav-link" href="/instructor">
+                    Instructor
+                  </Link>
+                </li>
+              )}
               {user !== null && (
                 <li className="nav-item">
                   <Link className="nav-link" href="/user">
